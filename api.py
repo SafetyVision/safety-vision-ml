@@ -40,7 +40,7 @@ def initialize_new_stream(kvs_arn):
     return url
 
 app = flask.Flask(__name__)
-app.config["DEBUG"] = True
+app.config["DEBUG"] = False
 #celery = celery.Celery(app.name)
 
 @app.route('/predict', methods=['POST'])
@@ -56,14 +56,16 @@ def train_new():
     infraction_type = req["infraction_type"]
     account_id = req["account_id"]
     location = req["location"]
-    url = initialize_new_stream(kvs_arn)
+    #url = initialize_new_stream(kvs_arn)
     print('starting pos in 10 seconds')
     time.sleep(10)
     print('starting pos')
+    url = initialize_new_stream(kvs_arn)
     pos_dir = capturing.begin_collection(url,req["infraction_type"],"positive",200)
     print('starting neg in 10 seconds')
     time.sleep(10)
     print('starting neg')
+    url = initialize_new_stream(kvs_arn)
     neg_dir = capturing.begin_collection(url,req["infraction_type"],"negative",200)
     model_dir = training.run_training(pos_dir, neg_dir,f'./tmp/capstone/{req["infraction_type"]}',20)
 
