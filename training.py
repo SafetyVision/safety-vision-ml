@@ -17,12 +17,14 @@ def col_fn(batch):
     out['labels'] = torch.stack([x['labels'] for x in batch[0]])
     return out
 
-def run_training(pos_dir,neg_dir):
+def run_training(pos_dir,neg_dir,model_dir,eval_size):
     dataset = CustomImageDataset(img_dir_true = pos_dir, img_dir_false = neg_dir)
-    train_set, val_set = torch.utils.data.random_split(dataset, [30, 10])
+    train_set, val_set = torch.utils.data.random_split(dataset, [len(dataset)-eval_size, eval_size])
     model =  torchvision.models.mobilenet_v2(pretrained=True)
     model.classifier[1] = torch.nn.Linear(in_features=model.classifier[1].in_features,out_features=1)
     agh = HatNoHat(train_set, val_set, model, col_fn) 
     trainer = pl.Trainer(max_epochs=2)
     print('begin training')
     trainer.fit(agh)
+    trainer.save_checkpoint(os.path.join(model_dir,'trained.ckpt'))
+    return os.path.join(model_dir,'trained.ckpt')

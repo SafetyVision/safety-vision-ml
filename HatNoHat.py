@@ -7,7 +7,7 @@ F = torch.nn.BCEWithLogitsLoss()
 M = torch.nn.Sigmoid()
 
 class HatNoHat(pl.LightningModule):
-    def __init__(self, train_dataset, val_dataset, model, col_fn, learning_rate=5e-5, num_loading_cpus=1, batch_size=1):
+    def __init__(self, train_dataset=None, val_dataset=None, model=None, col_fn=None, learning_rate=5e-5, num_loading_cpus=1, batch_size=1):
         super().__init__() 
         self.model =  model
         self.train_dataset = train_dataset
