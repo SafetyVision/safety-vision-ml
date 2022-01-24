@@ -30,21 +30,21 @@ def predict():
 def train_new():
     req = request.get_json()
     kvs_arn = req["kvs_arn"]
-    infraction_type = req["infraction_type"]
-    account_id = req["account_id"]
-    location = req["location"]
+    infraction_type = str(req["infraction_type"])
+    account_id = str(req["account_id"])
+    location = str(req["location"])
     #url = initialize_new_stream(kvs_arn)
     print('starting pos in 10 seconds')
     time.sleep(10)
     print('starting pos')
     url = connection.initialize_new_stream(kvs_arn)
-    pos_dir = capturing.begin_collection(url,req["infraction_type"],"positive",200)
+    pos_dir = capturing.begin_collection(url, infraction_type, "positive",200)
     print('starting neg in 10 seconds')
     time.sleep(10)
     print('starting neg')
     url = connection.initialize_new_stream(kvs_arn)
-    neg_dir = capturing.begin_collection(url,req["infraction_type"],"negative",200)
-    model_dir = training.run_training(pos_dir, neg_dir,f'./tmp/capstone/{req["infraction_type"]}',20)
+    neg_dir = capturing.begin_collection(url, infraction_type,"negative",200)
+    model_dir = training.run_training(pos_dir, neg_dir,f'./tmp/capstone/{infraction_type}',20)
 
     url = connection.initialize_new_stream(kvs_arn)
     thr = threading.Thread(target = inference.inference, args=(infraction_type, location, url, model_dir, account_id,kvs_arn))

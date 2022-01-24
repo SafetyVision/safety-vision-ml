@@ -7,8 +7,11 @@ import torch
 import requests 
 from datetime import datetime
 import connection
+import os
+
 def inference(infraction_type, location, url, model_path, account_id,kvs_arn ):
     M = torch.nn.Sigmoid()
+    token = os.environ["PLATFORM_TOKEN"]
     with torch.no_grad():
         model2 =  torchvision.models.mobilenet_v2(pretrained=True)
         model2.classifier[1] = torch.nn.Linear(in_features=model2.classifier[1].in_features,out_features=1)
@@ -25,8 +28,9 @@ def inference(infraction_type, location, url, model_path, account_id,kvs_arn ):
                 out = M(out)
                 if out.numpy().tolist()[0][0] > 0.7:
                     now = datetime.now()
-                    dt_string = now.strftime("%Y-%m-%dT%H:%M:%S-05:00") #Yes I know I hardcoded a time zone sue me
-                    send_infraction(dt_string,account_id)
+                    dt_string = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
+                    #dt_string = now.strftime("%Y-%m-%dT%H:%M:%S-05:00") #Yes I know I hardcoded a time zone sue me
+                    send_infraction(dt_string,account_id,token)
                     print('hi there')
                 time.sleep(1)
             except cv2.error:
@@ -34,7 +38,7 @@ def inference(infraction_type, location, url, model_path, account_id,kvs_arn ):
                 continue
 
 
-def send_infraction(dt,account):
+def send_infraction(dt,account,token):
     URL = "https://safety-vision.ca/api/infraction_events/create"
-    requests.post(url = URL, json={"infraction_date_time":dt, "account":account}, headers={'Content-Type: application/json','x-create-infraction-event-key": "token'})
+    requests.post(url = URL, json={"infraction_date_time":dt, "account":account}, headers={"Content-Type": "application/json","x-create-infraction-event-key": token})
 
