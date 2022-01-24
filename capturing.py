@@ -7,11 +7,15 @@ def begin_collection(url,infraction_type,positive_negative,num_frames):
     os.makedirs(f'tmp/capstone/{infraction_type}/{positive_negative}', exist_ok=True)
     while count < num_frames:
         cap = cv2.VideoCapture(url)
+        print('1')
+        time.sleep(1)
         ret, frame = cap.read()
+        print('2')
+        time.sleep(1)
         frame = cv2.resize(frame, (224,224))        
         cv2.imwrite(f'./tmp/capstone/{infraction_type}/{positive_negative}/img{count}.png',frame)
         count += 1
-        #time.sleep(0.5)
+        time.sleep(1)
     print('Done capurue')
     return f'./tmp/capstone/{infraction_type}/{positive_negative}' 
     
