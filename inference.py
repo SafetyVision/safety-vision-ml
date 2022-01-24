@@ -1,14 +1,15 @@
-import celery
+import torchvision
 import requests
 import HatNoHat
 import cv2
 import time
 import torch
-@celery.task
 def inference(infraction_type, location, url, model_path ):
     M = torch.nn.Sigmoid()
     with torch.no_grad():
-        model = HatNoHat.HatNoHat.load_from_checkpoint(model_path)
+        model2 =  torchvision.models.mobilenet_v2(pretrained=True)
+        model2.classifier[1] = torch.nn.Linear(in_features=model2.classifier[1].in_features,out_features=1)
+        model = HatNoHat.HatNoHat.load_from_checkpoint(model_path,model=model2)
         while(True):
             cap = cv2.VideoCapture(url)
             ret, frame = cap.read()

@@ -2,10 +2,10 @@ import time
 import cv2
 import os
 
-def begin_collection(url,infraction_type,positive_negative):
+def begin_collection(url,infraction_type,positive_negativen,num_frames):
     count = 0
     os.makedirs(f'tmp/capstone/{infraction_type}/{positive_negative}', exist_ok=True)
-    while count < 20:
+    while count < num_frames:
         cap = cv2.VideoCapture(url)
         ret, frame = cap.read()
         frame = cv2.resize(frame, (224,224))        
