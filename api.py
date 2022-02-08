@@ -110,35 +110,12 @@ def restart_predicting():
     thr.start()
     return {"message": "Accepted"}, 202
 
-
-@app.route('/inference_route', methods=['POST'])
-def inference_route():
+@app.route('/local_requests', methods = ['POST'])
+def local_requests():
     req = request.get_json()
-    kvs_arn = req["kvs_arn"]
-    infraction_type = str(req["infraction_type"])
-    account_id = str(req["account_id"])
-    location = str(req["location"])
-    model_dir= f'tmp/capstone/{account_id}/{infraction_type}/{location}'+'/trained.ckpt'
-    if "output_url" in req:
-        output_url = req["output_url"]
-    else:
-        output_url = "https://safety-vision.ca/api/infraction_events/create"
-    threads_dict[f"{account_id}/{infraction_type}/{location}"] = True
-    url = connection.initialize_new_stream(kvs_arn)
-    thr = threading.Thread(
-    target = inference.run_inference,
-    args = (
-        infraction_type,
-        location,
-        url,
-        model_dir,
-        account_id,
-        kvs_arn,
-        output_url,
-        threads_dict
-        )
-    )
-    thr.start()
-    return {"message": "Accepted"}, 202
+    print('--------------')
+    print(req)
+    print('--------------')
+    return ""
 
 app.run('0.0.0.0',port=5000, threaded=True)
