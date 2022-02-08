@@ -47,7 +47,7 @@ def train_new():
     model_dir = training.run_training(
         pos_dir,
         neg_dir,
-        model_dir= f'./tmp/capstone/{account_id}/{infraction_type}/{location}',
+        model_dir= f'tmp/capstone/{account_id}/{infraction_type}/{location}',
         eval_size=20,
     )
 
@@ -86,7 +86,7 @@ def restart_predicting():
     infraction_type = str(req["infraction_type"])
     account_id = str(req["account_id"])
     location = str(req["location"])
-    model_dir= f'./tmp/capstone/{account_id}/{infraction_type}/{location}'
+    model_dir= f'tmp/capstone/{account_id}/{infraction_type}/{location}'
     if "output_url" in req:
         output_url = req["output_url"]
     else:
@@ -117,7 +117,7 @@ def inference_route():
     infraction_type = str(req["infraction_type"])
     account_id = str(req["account_id"])
     location = str(req["location"])
-    model_dir= f'./tmp/capstone/{account_id}/{infraction_type}/{location}'
+    model_dir= f'tmp/capstone/{account_id}/{infraction_type}/{location}'
     if "output_url" in req:
         output_url = req["output_url"]
     else:

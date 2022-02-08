@@ -30,9 +30,9 @@ def begin_collection(url, infraction_type, account_id, location, capture_delay, 
         cap = cv2.VideoCapture(url)
         ret, frame = cap.read()
         frame = cv2.resize(frame, (224,224))        
-        cv2.imwrite(f'./tmp/capstone/{account_id}/{infraction_type}/{location}/{positive_negative}/img{count}.png',frame)
+        cv2.imwrite(f'tmp/capstone/{account_id}/{infraction_type}/{location}/{positive_negative}/img{count}.png',frame)
         count += 1
         print(count)
         time.sleep(capture_delay)
-    return f'./tmp/capstone/{account_id}/{infraction_type}/{location}/{positive_negative}' 
+    return f'tmp/capstone/{account_id}/{infraction_type}/{location}/{positive_negative}' 
     
