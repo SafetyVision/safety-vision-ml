@@ -12,13 +12,13 @@ def collection_management(kvs_arn, infraction_type, account_id, location, num_ca
     print(f'Starting positive images collection in {begin_pos_delay} seconds')
     time.sleep(begin_pos_delay)
     print('Starting positive images collection')
-    pos_dir = begin_collection(url, infraction_type, account_id, capture_delay, "positive", num_captures)
+    pos_dir = begin_collection(url, infraction_type, account_id, location, capture_delay, "positive", num_captures)
 
     url = connection.initialize_new_stream(kvs_arn)
     print(f'Starting negative images collection in {begin_neg_delay} seconds')
     time.sleep(begin_neg_delay)
     print('Starting negative images collection')
-    neg_dir = begin_collection(url, infraction_type, account_id, capture_delay, "negative", num_captures)
+    neg_dir = begin_collection(url, infraction_type, account_id, location, capture_delay, "negative", num_captures)
     print('Image collection complete')
 
     return (pos_dir, neg_dir)
