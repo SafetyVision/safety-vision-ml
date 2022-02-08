@@ -47,7 +47,7 @@ def train_new():
     model_dir = training.run_training(
         pos_dir,
         neg_dir,
-        model_dir= f'tmp/capstone/{account_id}/{infraction_type}/{location}'
+        model_dir= f'tmp/capstone/{account_id}/{infraction_type}/{location}',
         eval_size=20,
     )
 
