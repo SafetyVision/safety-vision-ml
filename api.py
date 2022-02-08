@@ -78,6 +78,7 @@ def stop_predicting():
     account_id = str(req["account_id"])
     location = str(req["location"])
     threads_dict[f"{account_id}/{infraction_type}/{location}"] = False
+    return {"message": "Accepted"}, 202
     
 @app.route('/restart_predicting', methods = ['POST'])
 def restart_predicting():
