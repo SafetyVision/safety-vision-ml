@@ -49,6 +49,10 @@ def train_new():
         neg_dir,
         model_dir= f'tmp/capstone/{account_id}/{infraction_type}/{location}',
         eval_size=20,
+        infraction_type=infraction_type,
+        location=location,
+        account_id=account_id,
+        output_url=output_url,
     )
 
     url = connection.initialize_new_stream(kvs_arn)
