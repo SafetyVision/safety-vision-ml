@@ -31,7 +31,7 @@ def run_inference(infraction_type, location, url, model_path, account_id,kvs_arn
                     now = datetime.datetime.now()
                     dt_string = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - datetime.timedelta(seconds=15)
                     dt_string = dt_string.isoformat()
-                    send_infraction(dt_string,account_id,token)
+                    send_infraction(dt_string,account_id,token,output_url)
                     
                     print('hi there')
                 time.sleep(1)
@@ -40,6 +40,6 @@ def run_inference(infraction_type, location, url, model_path, account_id,kvs_arn
                 continue
 
 
-def send_infraction(dt,account,token):
-    URL = "https://safety-vision.ca/api/infraction_events/create"
-    requests.post(url = URL, json={"infraction_date_time":dt, "account":account}, headers={"Content-Type": "application/json","x-create-infraction-event-key": token})
+def send_infraction(dt,account,token,output_url):
+    #URL = "https://safety-vision.ca/api/infraction_events/create"
+    requests.post(url = output_url, json={"infraction_date_time":dt, "account":account}, headers={"Content-Type": "application/json","x-create-infraction-event-key": token})
