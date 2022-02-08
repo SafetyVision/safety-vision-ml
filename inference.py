@@ -9,14 +9,14 @@ import datetime
 import connection
 import os
 
-def inference(infraction_type, location, url, model_path, account_id,kvs_arn ):
+def run_inference(infraction_type, location, url, model_path, account_id,kvs_arn, output_url, threads_dict):
     M = torch.nn.Sigmoid()
     token = os.environ["PLATFORM_TOKEN"]
     with torch.no_grad():
-        model2 =  torchvision.models.mobilenet_v2(pretrained=True)
-        model2.classifier[1] = torch.nn.Linear(in_features=model2.classifier[1].in_features,out_features=1)
-        model = HatNoHat.HatNoHat.load_from_checkpoint(model_path,model=model2)
-        while(True):
+        model_init =  torchvision.models.mobilenet_v2(pretrained=False)
+        model_init.classifier[1] = torch.nn.Linear(in_features=model_init.classifier[1].in_features,out_features=1)
+        model = HatNoHat.HatNoHat.load_from_checkpoint(model_path,model=model_init)
+        while(threads_dict[f"{account_id}/{infraction_type}/{location}"] == True):
             try:
                 cap = cv2.VideoCapture(url)
                 ret, frame = cap.read()
@@ -29,10 +29,8 @@ def inference(infraction_type, location, url, model_path, account_id,kvs_arn ):
                 print(out.numpy().tolist()[0][0])
                 if out.numpy().tolist()[0][0] > 0.50:
                     now = datetime.datetime.now()
-                    #dt_string = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat() - datetime.timedelta(seconds=5)
                     dt_string = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - datetime.timedelta(seconds=15)
                     dt_string = dt_string.isoformat()
-                    #dt_string = now.strftime("%Y-%m-%dT%H:%M:%S-05:00") #Yes I know I hardcoded a time zone sue me
                     send_infraction(dt_string,account_id,token)
                     
                     print('hi there')
@@ -45,4 +43,3 @@ def inference(infraction_type, location, url, model_path, account_id,kvs_arn ):
 def send_infraction(dt,account,token):
     URL = "https://safety-vision.ca/api/infraction_events/create"
     requests.post(url = URL, json={"infraction_date_time":dt, "account":account}, headers={"Content-Type": "application/json","x-create-infraction-event-key": token})
-
