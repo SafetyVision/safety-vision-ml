@@ -5,7 +5,8 @@ import connection
 import shutil
 
 def collection_management(kvs_arn, infraction_type, account_id, location, num_captures, capture_delay, begin_neg_delay, begin_pos_delay):
-    shutil.rmtree(f'tmp/capstone/{account_id}/{infraction_type}/{location}')
+    if os.path.isdir(f'tmp/capstone/{account_id}/{infraction_type}/{location}'):
+        shutil.rmtree(f'tmp/capstone/{account_id}/{infraction_type}/{location}')
 
     url = connection.initialize_new_stream(kvs_arn)
     print(f'Starting positive images collection in {begin_pos_delay} seconds')
