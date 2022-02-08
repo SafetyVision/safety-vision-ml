@@ -15,7 +15,7 @@ def run_inference(infraction_type, location, url, model_path, account_id,kvs_arn
     with torch.no_grad():
         model_init =  torchvision.models.mobilenet_v2(pretrained=False)
         model_init.classifier[1] = torch.nn.Linear(in_features=model_init.classifier[1].in_features,out_features=1)
-        model = HatNoHat.HatNoHat.load_from_checkpoint(model_path+'/trained.ckpt',model=model_init)
+        model = HatNoHat.HatNoHat.load_from_checkpoint(model_path,model=model_init)
         while(threads_dict[f"{account_id}/{infraction_type}/{location}"] == True):
             try:
                 cap = cv2.VideoCapture(url)
