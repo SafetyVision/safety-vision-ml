@@ -5,7 +5,7 @@ import cv2
 import time
 import torch
 import requests 
-from datetime import datetime
+import datetime
 import connection
 import os
 
@@ -26,11 +26,15 @@ def inference(infraction_type, location, url, model_path, account_id,kvs_arn ):
                 ft= ft.unsqueeze(0)
                 out = model.forward(ft.float())
                 out = M(out)
-                if out.numpy().tolist()[0][0] > 0.7:
-                    now = datetime.now()
-                    dt_string = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
+                print(out.numpy().tolist()[0][0])
+                if out.numpy().tolist()[0][0] > 0.50:
+                    now = datetime.datetime.now()
+                    #dt_string = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat() - datetime.timedelta(seconds=5)
+                    dt_string = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - datetime.timedelta(seconds=15)
+                    dt_string = dt_string.isoformat()
                     #dt_string = now.strftime("%Y-%m-%dT%H:%M:%S-05:00") #Yes I know I hardcoded a time zone sue me
                     send_infraction(dt_string,account_id,token)
+                    
                     print('hi there')
                 time.sleep(1)
             except cv2.error:
