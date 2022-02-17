@@ -84,8 +84,8 @@ def stop_predicting():
     threads_dict[f"{account_id}/{infraction_type}/{location}"] = False
     return {"message": "Accepted"}, 202
     
-@app.route('/restart_predicting', methods = ['POST'])
-def restart_predicting():
+@app.route('/start_predicting', methods = ['POST'])
+def start_predicting():
     req = request.get_json()
     kvs_arn = req["kvs_arn"]
     infraction_type = str(req["infraction_type"])
