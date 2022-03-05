@@ -14,7 +14,7 @@ def collection_management(parsed_details, train_request, begin_positive, begin_n
 
     start = time.time()
     while(begin_positive[parsed_details.details_string] == False):
-        threading.sleep(0.5)
+        time.sleep(0.5)
         if(time.time()-start) > 120:
             raise TimeoutError("Waited too long to begin collection")                
 
@@ -26,7 +26,7 @@ def collection_management(parsed_details, train_request, begin_positive, begin_n
 
     start = time.time()
     while(begin_negative[parsed_details.details_string] == False):
-        threading.sleep(0.5)    
+        time.sleep(0.5)    
         if(time.time()-start) > 120:
             raise TimeoutError("Waited too long to begin collection")   
 
@@ -38,7 +38,7 @@ def collection_management(parsed_details, train_request, begin_positive, begin_n
 
     start = time.time()
     while(begin_positive[parsed_details.details_string] == False):
-        threading.sleep(0.5)
+        time.sleep(0.5)
         if(time.time()-start) > 120:
             raise TimeoutError("Waited too long to begin collection")                
 
@@ -50,7 +50,7 @@ def collection_management(parsed_details, train_request, begin_positive, begin_n
 
     start = time.time()
     while(begin_negative[parsed_details.details_string] == False):
-        threading.sleep(0.5)    
+        time.sleep(0.5)    
         if(time.time()-start) > 120:
             raise TimeoutError("Waited too long to begin collection")   
 
