@@ -27,7 +27,7 @@ def train_new():
     begin_negative[parsed_details.details_string] = False
     #Training data collection
     try:
-        pos_dir, neg_dir = capturing.collection_management(parsed_details, train_request, begin_positive, begin_negative)
+        capturing.collection_management(parsed_details, train_request, begin_positive, begin_negative)
 
         #Model training
         model_path = training.run_training(
