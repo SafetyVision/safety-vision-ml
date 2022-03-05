@@ -113,7 +113,7 @@ def send_done_commit(parsed_details):
 
 def send_done_not_commit(parsed_details):
     requests.post(
-        url = f'{parsed_details.device_serial_number}/infraction_types/{parsed_details.infraction_type_id}/done_not_commit',
+        url = f'{PLATFORM_ENDPOINT}{parsed_details.device_serial_number}/infraction_types/{parsed_details.infraction_type_id}/done_not_commit',
         json={
             "device_serial_number" : parsed_details.device_serial_number,
             "infraction_type_id" : parsed_details.infraction_type_id,
