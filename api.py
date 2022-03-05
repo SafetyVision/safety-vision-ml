@@ -93,6 +93,7 @@ def restart_predicting():
         target = inference.run_inference,
         args = (
             parsed_details,
+            train_request
             url,
             model_dir,
             threads_dict
