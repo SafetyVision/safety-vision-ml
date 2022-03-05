@@ -85,7 +85,7 @@ def begin_collection(url, parsed_details, train_request, positive_negative, seri
 
 def send_capturing_failure(parsed_details):
     requests.post(
-        url = f'{parsed_details.serial_number}/infraction_types/{parsed_details.infraction_type_id}/needs_retraining',
+        url = f'{parsed_details.device_serial_number}/infraction_types/{parsed_details.infraction_type_id}/needs_retraining',
         json={
             "device_serial_number" : parsed_details.device_serial_number,
             "infraction_type_id" : parsed_details.infraction_type_id,
@@ -99,7 +99,7 @@ def send_capturing_failure(parsed_details):
 
 def send_done_commit(parsed_details):
     requests.post(
-        url = f'{parsed_details.serial_number}/infraction_types/{parsed_details.infraction_type_id}/done_commit',
+        url = f'{parsed_details.device_serial_number}/infraction_types/{parsed_details.infraction_type_id}/done_commit',
         json={
             "device_serial_number" : parsed_details.device_serial_number,
             "infraction_type_id" : parsed_details.infraction_type_id,
@@ -113,7 +113,7 @@ def send_done_commit(parsed_details):
 
 def send_done_not_commit(parsed_details):
     requests.post(
-        url = f'{parsed_details.serial_number}/infraction_types/{parsed_details.infraction_type_id}/done_not_commit',
+        url = f'{parsed_details.device_serial_number}/infraction_types/{parsed_details.infraction_type_id}/done_not_commit',
         json={
             "device_serial_number" : parsed_details.device_serial_number,
             "infraction_type_id" : parsed_details.infraction_type_id,
