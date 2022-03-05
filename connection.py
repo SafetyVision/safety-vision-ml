@@ -10,7 +10,8 @@ def initialize_new_stream(kvs_arn):
         'kinesisvideo',
         aws_access_key_id= AWS_ACCESS_KEY_ID,
         aws_secret_access_key= AWS_SECRET_ACCESS_KEY,
-        region_name= REGION)
+        region_name= REGION
+        )
     kvs_endpoint = kvs_client.get_data_endpoint(
         StreamARN=kvs_arn,
         APIName="GET_HLS_STREAMING_SESSION_URL"

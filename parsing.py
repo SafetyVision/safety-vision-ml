@@ -32,7 +32,7 @@ def parse_request_details(req):
 
 def parse_train_details(req):
     return TrainRequest(
-        num_captures = str(req.get("num_captures", None)),
-        between_captures = str(req.get("between_captures", None)),
-        stream_delay = str(req.get("stream_delay", None)),
+        num_captures = int(req.get("num_captures", None)),
+        between_captures = float(req.get("between_captures", None)),
+        stream_delay = float(req.get("stream_delay", None)),
     )
