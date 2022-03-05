@@ -48,8 +48,8 @@ def send_infraction(dt_string, parsed_details):
         url = parsed_details.output_url,
         json={
             "infraction_date_time":dt_string,
-            "device_serial_number" : parsed_details.device_serial_number,
-            "infraction_type_id" : parsed_details.infraction_type_id,
+            "device" : parsed_details.device_serial_number,
+            "infraction_type" : int(parsed_details.infraction_type_id),
         },
         headers={
             "Content-Type": "application/json",
