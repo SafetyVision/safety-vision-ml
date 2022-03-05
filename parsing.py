@@ -17,9 +17,9 @@ class RequestDetails:
 
 @attr.define
 class TrainRequest:
-    num_captures: int = 20,
-    between_captures: float = 0.2,
-    stream_delay: float = 15,
+    num_captures: int = 20
+    between_captures: float = 0.2
+    stream_delay: float = 15
       
 
 
