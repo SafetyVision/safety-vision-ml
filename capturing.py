@@ -6,7 +6,7 @@ import connection
 import shutil
 import requests
 
-from constants import MODEL_BASE_DIR, TOKEN
+from constants import MODEL_BASE_DIR, PLATFORM_ENDPOINT, TOKEN
 
 def collection_management(parsed_details, train_request, begin_positive, begin_negative):
     if os.path.isdir(f'{MODEL_BASE_DIR}/{parsed_details.details_string}'):
@@ -85,7 +85,7 @@ def begin_collection(url, parsed_details, train_request, positive_negative, seri
 
 def send_capturing_failure(parsed_details):
     requests.post(
-        url = f'{parsed_details.device_serial_number}/infraction_types/{parsed_details.infraction_type_id}/needs_retraining',
+        url = f'{PLATFORM_ENDPOINT}{parsed_details.device_serial_number}/infraction_types/{parsed_details.infraction_type_id}/needs_retraining',
         json={
             "device_serial_number" : parsed_details.device_serial_number,
             "infraction_type_id" : parsed_details.infraction_type_id,
@@ -99,7 +99,7 @@ def send_capturing_failure(parsed_details):
 
 def send_done_commit(parsed_details):
     requests.post(
-        url = f'{parsed_details.device_serial_number}/infraction_types/{parsed_details.infraction_type_id}/done_commit',
+        url = f'{PLATFORM_ENDPOINT}{parsed_details.device_serial_number}/infraction_types/{parsed_details.infraction_type_id}/done_commit',
         json={
             "device_serial_number" : parsed_details.device_serial_number,
             "infraction_type_id" : parsed_details.infraction_type_id,

@@ -19,7 +19,7 @@ def run_inference(parsed_details, train_request, url, model_path, threads_dict):
         model_init.classifier[1] = torch.nn.Linear(in_features=model_init.classifier[1].in_features,out_features=1)
         model = InfractionDetectionModel.load_from_checkpoint(model_path,model=model_init)
 
-        send_begin_detection(parsed_details)
+        #send_begin_detection(parsed_details)
         while(threads_dict[parsed_details.details_string] == True):
             try:
                 cap = cv2.VideoCapture(url)
@@ -40,7 +40,7 @@ def run_inference(parsed_details, train_request, url, model_path, threads_dict):
             except cv2.error:
                 url = connection.initialize_new_stream(parsed_details.kvs_arn)
                 continue
-        send_end_detection(parsed_details)
+        #send_end_detection(parsed_details)
 
 
 def send_infraction(dt_string, parsed_details):
