@@ -1,122 +1,109 @@
 import flask
-import json
-import boto3
-from flask import request
 import capturing
 import training
-import os
-import time
 import inference
-import torch
-import HatNoHat
-import cv2
 import threading
-import torchvision
 import connection
-import requests
+from parsing import parse_request_details, parse_train_details
+from constants import MODEL_BASE_DIR, TRAINED_NAME
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = False
 global threads_dict
+global begin_postive
+global begin_negative
 threads_dict = dict()
+begin_positive = dict()
+begin_negative = dict()
 
 @app.route('/train_new', methods=['POST'])
 def train_new():
-    req = request.get_json()
-    kvs_arn = req["kvs_arn"]
-    infraction_type = str(req["infraction_type"])
-    account_id = str(req["account_id"])
-    location = str(req["location"])
-    if "output_url" in req:
-        output_url = req["output_url"]
-    else:
-        output_url = "https://safety-vision.ca/api/infraction_events/create"
+    #Input parsing
+    req = flask.request.get_json()
+    parsed_details = parse_request_details(req)
+    train_request = parse_train_details(req)
 
+    begin_positive[parsed_details.details_string] = False
+    begin_negative[parsed_details.details_string] = False
+    #Training data collection
+    try:
+        pos_dir, neg_dir = capturing.collection_management(parsed_details, train_request, begin_positive, begin_negative)
 
-    pos_dir, neg_dir = capturing.collection_management(
-        kvs_arn,
-        infraction_type,
-        account_id,
-        location,
-        num_captures=20,
-        capture_delay=0.2,
-        begin_neg_delay=20,
-        begin_pos_delay=20,
-    )
+        #Model training
+        model_path = training.run_training(
+            parsed_details,
+            train_request
+        )
 
-    model_dir = training.run_training(
-        pos_dir,
-        neg_dir,
-        model_dir= f'tmp/capstone/{account_id}/{infraction_type}/{location}',
-        eval_size=20,
-        infraction_type=infraction_type,
-        location=location,
-        account_id=account_id,
-        output_url=output_url,
-    )
+        #Infraction detection
+        url = connection.initialize_new_stream(parsed_details.kvs_arn)
+        threads_dict[parsed_details.details_string] = True
+        thr = threading.Thread(
+            target = inference.run_inference,
+            args = (
+                parsed_details,
+                train_request,
+                url,
+                model_path,
+                threads_dict
+                )
+            )
+        thr.start()
 
-    url = connection.initialize_new_stream(kvs_arn)
-    threads_dict[f"{account_id}/{infraction_type}/{location}"] = True
+        return {"message": "Accepted"}, 202
+    except TimeoutError: 
+        return {"message": "Accepted"}, 202
     
+
+@app.route('/start_positive', methods=['POST'])
+def start_positive():
+    #Input parsing
+    req = flask.request.get_json()
+    parsed_details = parse_request_details(req)
+    begin_negative[parsed_details.details_string] = False
+    begin_positive[parsed_details.details_string] = True
+    return {"message": "Accepted"}, 202
+
+@app.route('/start_negative', methods=['POST'])
+def start_negative():
+    #Input parsing
+    req = flask.request.get_json()
+    parsed_details = parse_request_details(req)
+    begin_positive[parsed_details.details_string] = False
+    begin_negative[parsed_details.details_string] = True
+    return {"message": "Accepted"}, 202
+
+
+@app.route('/stop_predicting', methods=['POST'])
+def stop_predicting():
+    req = flask.request.get_json()    
+    parsed_details = parse_request_details(req)
+    threads_dict[parsed_details.details_string] = False
+    return {"message": "Accepted"}, 202
+    
+@app.route('/restart_predicting', methods = ['POST'])
+def restart_predicting():
+    req = flask.request.get_json()    
+    parsed_details = parse_request_details(req)
+    train_request = parse_train_details(req)
+    model_dir= f'{MODEL_BASE_DIR}/{parsed_details.details_string}/{TRAINED_NAME}'
+    threads_dict[parsed_details.details_string] = True
+    url = connection.initialize_new_stream(parsed_details.kvs_arn)
     thr = threading.Thread(
         target = inference.run_inference,
         args = (
-            infraction_type,
-            location,
+            parsed_details,
             url,
             model_dir,
-            account_id,
-            kvs_arn,
-            output_url,
             threads_dict
             )
         )
     thr.start()
     return {"message": "Accepted"}, 202
 
-
-@app.route('/stop_predicting', methods=['POST'])
-def stop_predicting():
-    req = request.get_json()
-    infraction_type = str(req["infraction_type"])
-    account_id = str(req["account_id"])
-    location = str(req["location"])
-    threads_dict[f"{account_id}/{infraction_type}/{location}"] = False
-    return {"message": "Accepted"}, 202
-    
-@app.route('/start_predicting', methods = ['POST'])
-def start_predicting():
-    req = request.get_json()
-    kvs_arn = req["kvs_arn"]
-    infraction_type = str(req["infraction_type"])
-    account_id = str(req["account_id"])
-    location = str(req["location"])
-    model_dir= f'tmp/capstone/{account_id}/{infraction_type}/{location}'+'/trained.ckpt'
-    if "output_url" in req:
-        output_url = req["output_url"]
-    else:
-        output_url = "https://safety-vision.ca/api/infraction_events/create"
-    threads_dict[f"{account_id}/{infraction_type}/{location}"] = True
-    url = connection.initialize_new_stream(kvs_arn)
-    thr = threading.Thread(
-    target = inference.run_inference,
-    args = (
-        infraction_type,
-        location,
-        url,
-        model_dir,
-        account_id,
-        kvs_arn,
-        output_url,
-        threads_dict
-        )
-    )
-    thr.start()
-    return {"message": "Accepted"}, 202
-
 @app.route('/local_requests', methods = ['POST'])
 def local_requests():
-    req = request.get_json()
+    req = flask.request.get_json()
     print('--------------')
     print(req)
     print('--------------')

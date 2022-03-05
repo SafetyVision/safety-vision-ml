@@ -1,6 +1,7 @@
 import torchvision
 import requests
-import HatNoHat
+from constants import TOKEN
+import model
 import cv2
 import time
 import torch
@@ -9,15 +10,16 @@ import datetime
 import connection
 import os
 
-def run_inference(infraction_type, location, url, model_path, account_id,kvs_arn, output_url, threads_dict):
+def run_inference(parsed_details, train_request, url, model_path, threads_dict):
     M = torch.nn.Sigmoid()
-    token = os.environ["PLATFORM_TOKEN"]
     with torch.no_grad():
+        #Loading model and making binary classifier
         model_init =  torchvision.models.mobilenet_v2(pretrained=False)
         model_init.classifier[1] = torch.nn.Linear(in_features=model_init.classifier[1].in_features,out_features=1)
-        model = HatNoHat.HatNoHat.load_from_checkpoint(model_path,model=model_init)
-        send_begin_detection(account_id, location, infraction_type, token, output_url)
-        while(threads_dict[f"{account_id}/{infraction_type}/{location}"] == True):
+        model = model.InfractionDetectionModel.load_from_checkpoint(model_path,model=model_init)
+
+        send_begin_detection(parsed_details)
+        while(threads_dict[parsed_details.details_string] == True):
             try:
                 cap = cv2.VideoCapture(url)
                 ret, frame = cap.read()
@@ -28,59 +30,56 @@ def run_inference(infraction_type, location, url, model_path, account_id,kvs_arn
                 out = model.forward(ft.float())
                 out = M(out)
                 print(out.numpy().tolist()[0][0])
-                if out.numpy().tolist()[0][0] > 0.50:
-                    now = datetime.datetime.now()
+                if out.numpy().tolist()[0][0] > 0.60:
                     dt_string = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - datetime.timedelta(seconds=15)
-                    dt_string = dt_string.isoformat()
-                    send_infraction(dt_string,account_id,location, infraction_type,token,output_url)
+                    dt_string = dt_string.isoformat()                   
+                    send_infraction(dt_string, parsed_details)
+                    time.sleep(10)
                 time.sleep(1)
             except cv2.error:
-                url = connection.initialize_new_stream(kvs_arn)
+                url = connection.initialize_new_stream(parsed_details.kvs_arn)
                 continue
-        send_end_detection(account_id, location, infraction_type, token, output_url)
+        send_end_detection(parsed_details)
 
 
-def send_infraction(dt, account_id, location, infraction_type, token, output_url):
+def send_infraction(dt_string, parsed_details):
     requests.post(
-        url = output_url,
+        url = parsed_details.output_url,
         json={
-            "infraction_date_time":dt,
-            "account" : account_id,
-            "location" : location,
-            "infraction_type" : infraction_type,
+            "infraction_date_time":dt_string,
+            "device_serial_number" : parsed_details.device_serial_number,
+            "infraction_type_id" : parsed_details.infraction_type_id,
         },
         headers={
             "Content-Type": "application/json",
-            "x-create-infraction-event-key": token
+            "x-create-infraction-event-key": TOKEN
         }
     )
 
-def send_begin_detection(account_id, location, infraction_type, token, output_url):
+def send_begin_detection(parsed_details):
     requests.post(
-        url = output_url,
+        url = parsed_details.output_url,
         json={
-            "account" : account_id,
-            "location" : location,
-            "infraction_type" : infraction_type,
+            "device_serial_number" : parsed_details.device_serial_number,
+            "infraction_type_id" : parsed_details.infraction_type_id,
             "currently_tracking" : True,
         },
         headers={
             "Content-Type": "application/json",
-            "x-create-infraction-event-key": token
+            "x-create-infraction-event-key": TOKEN
         }
     )
 
-def send_end_detection(account_id, location, infraction_type, token, output_url):
+def send_end_detection(parsed_details):
     requests.post(
-        url = output_url,
+        url = parsed_details.output_url,
         json={
-            "account" : account_id,
-            "location" : location,
-            "infraction_type" : infraction_type,
+            "device_serial_number" : parsed_details.device_serial_number,
+            "infraction_type_id" : parsed_details.infraction_type_id,
             "currently_tracking" : False,
         },
         headers={
             "Content-Type": "application/json",
-            "x-create-infraction-event-key": token
+            "x-create-infraction-event-key": TOKEN
         }
     )

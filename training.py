@@ -7,9 +7,10 @@ from torch.utils.data import Dataset, DataLoader
 import torchvision
 import pytorch_lightning as pl
 import requests
+from constants import MODEL_BASE_DIR, TOKEN, TRAINED_NAME
 
-from CustomImageDataset import CustomImageDataset
-from HatNoHat import HatNoHat
+from dataset import DemonstrationImageDataset
+from model import InfractionDetectionModel
 
 
 def col_fn(batch):
@@ -18,31 +19,55 @@ def col_fn(batch):
     out['labels'] = torch.stack([x['labels'] for x in batch[0]])
     return out
 
-def run_training(pos_dir,neg_dir,model_dir,eval_size,infraction_type,location,account_id,output_url):
-    dataset = CustomImageDataset(img_dir_true = pos_dir, img_dir_false = neg_dir)
-    train_set, val_set = torch.utils.data.random_split(dataset, [len(dataset)-eval_size, eval_size])
+def run_training(parsed_details, train_request):
+    model_dir= f'{MODEL_BASE_DIR}/{parsed_details.details_string}'
+
+    dataset = DemonstrationImageDataset(
+        img_dir_true = os.path.join(model_dir,"positive"),
+        img_dir_false = os.path.join(model_dir,"negative"),
+        )
+
+    train_set, val_set = torch.utils.data.random_split(
+        dataset,
+        [len(dataset)-train_request.eval_size, train_request.eval_size],
+        )
+
     model =  torchvision.models.mobilenet_v2(pretrained=True)
     model.classifier[1] = torch.nn.Linear(in_features=model.classifier[1].in_features,out_features=1)
-    agh = HatNoHat(train_set, val_set, model, col_fn) 
+    agh = InfractionDetectionModel(train_set, val_set, model, col_fn) 
     trainer = pl.Trainer(max_epochs=2)
     print('begin training')
     trainer.fit(agh)
-    trainer.save_checkpoint(os.path.join(model_dir,'trained.ckpt'))
-    send_training_complete(infraction_type,location,account_id,output_url)
-    return os.path.join(model_dir,'trained.ckpt')
+    print(trainer)
 
-def send_training_complete(infraction_type,location,account_id,output_url):
-    token = os.environ["PLATFORM_TOKEN"]
+    trainer.save_checkpoint(os.path.join(model_dir, TRAINED_NAME))
+    send_training_complete(parsed_details)
+    return os.path.join(model_dir,TRAINED_NAME)
+
+def send_training_complete(parsed_details):
     requests.post(
-        url = output_url,
+        url = parsed_details.output_url,
         json={
-            "account" : account_id,
-            "location" : location,
-            "infraction_type" : infraction_type,
+            "device_serial_number" : parsed_details.device_serial_number,
+            "infraction_type_id" : parsed_details.infraction_type_id,
             "training_complete" : True,
         },
         headers={
             "Content-Type": "application/json",
-            "x-create-infraction-event-key": token
+            "x-create-infraction-event-key": TOKEN
+        }
+    )
+
+def send_training_failure(parsed_details):
+    requests.post(
+        url = f'{parsed_details.serial_number}/infraction_types/{parsed_details.infraction_type_id}/needs_retraining',
+        json={
+            "device_serial_number" : parsed_details.device_serial_number,
+            "infraction_type_id" : parsed_details.infraction_type_id,
+            "currently_tracking" : True,
+        },
+        headers={
+            "Content-Type": "application/json",
+            "x-create-infraction-event-key": TOKEN
         }
     )

@@ -1,38 +1,94 @@
+import threading
 import time
 import cv2
 import os
 import connection
 import shutil
+import requests
 
-def collection_management(kvs_arn, infraction_type, account_id, location, num_captures, capture_delay, begin_neg_delay, begin_pos_delay):
-    if os.path.isdir(f'tmp/capstone/{account_id}/{infraction_type}/{location}'):
-        shutil.rmtree(f'tmp/capstone/{account_id}/{infraction_type}/{location}')
+from constants import MODEL_BASE_DIR, TOKEN
 
-    url = connection.initialize_new_stream(kvs_arn)
-    print(f'Starting positive images collection in {begin_pos_delay} seconds')
-    time.sleep(begin_pos_delay)
+def collection_management(parsed_details, train_request, begin_positive, begin_negative):
+    if os.path.isdir(f'{MODEL_BASE_DIR}/{parsed_details.details_string}'):
+        shutil.rmtree(f'{MODEL_BASE_DIR}/{parsed_details.details_string}')
+
+    start = time.time()
+    while(begin_positive[parsed_details.details_string] == False):
+        threading.sleep(0.5)
+        if(time.time()-start) > 120:
+            raise TimeoutError("Waited too long to begin collection")                
+
+    url = connection.initialize_new_stream(parsed_details.kvs_arn)
+    print(f'Starting positive images collection in {train_request.stream_delay} seconds')
+    time.sleep(train_request.stream_delay)
     print('Starting positive images collection')
-    pos_dir = begin_collection(url, infraction_type, account_id, location, capture_delay, "positive", num_captures)
+    pos_dir = begin_collection(url, parsed_details, train_request, "positive", 1)
 
-    url = connection.initialize_new_stream(kvs_arn)
-    print(f'Starting negative images collection in {begin_neg_delay} seconds')
-    time.sleep(begin_neg_delay)
+    start = time.time()
+    while(begin_negative[parsed_details.details_string] == False):
+        threading.sleep(0.5)    
+        if(time.time()-start) > 120:
+            raise TimeoutError("Waited too long to begin collection")   
+
+    url = connection.initialize_new_stream(parsed_details.kvs_arn)
+    print(f'Starting negative images collection in {train_request.stream_delay} seconds')
+    time.sleep(train_request.stream_delay)
     print('Starting negative images collection')
-    neg_dir = begin_collection(url, infraction_type, account_id, location, capture_delay, "negative", num_captures)
+    neg_dir = begin_collection(url, parsed_details, train_request, "negative", 1)
+
+    start = time.time()
+    while(begin_positive[parsed_details.details_string] == False):
+        threading.sleep(0.5)
+        if(time.time()-start) > 120:
+            raise TimeoutError("Waited too long to begin collection")                
+
+    url = connection.initialize_new_stream(parsed_details.kvs_arn)
+    print(f'Starting positive images collection in {train_request.stream_delay} seconds')
+    time.sleep(train_request.stream_delay)
+    print('Starting positive images collection')
+    pos_dir = begin_collection(url, parsed_details, train_request, "positive", 2)
+
+    start = time.time()
+    while(begin_negative[parsed_details.details_string] == False):
+        threading.sleep(0.5)    
+        if(time.time()-start) > 120:
+            raise TimeoutError("Waited too long to begin collection")   
+
+    url = connection.initialize_new_stream(parsed_details.kvs_arn)
+    print(f'Starting negative images collection in {train_request.stream_delay} seconds')
+    time.sleep(train_request.stream_delay)
+    print('Starting negative images collection')
+    neg_dir = begin_collection(url, parsed_details, train_request, "negative", 2)
     print('Image collection complete')
+    
 
-    return (pos_dir, neg_dir)
 
-def begin_collection(url, infraction_type, account_id, location, capture_delay, positive_negative, num_frames):
-    count = 0
-    os.makedirs(f'tmp/capstone/{account_id}/{infraction_type}/{location}/{positive_negative}', exist_ok=True)    
-    while count < num_frames:
+
+def begin_collection(url, parsed_details, train_request, positive_negative, series_number):
+    iter_end = series_number * (train_request.num_captures // 4)
+    os.makedirs(f'{MODEL_BASE_DIR}/{parsed_details.details_string}/{positive_negative}', exist_ok=True)
+    iter_start = (series_number-1) * (train_request.num_captures // 4)
+    while iter_start < iter_end:
         cap = cv2.VideoCapture(url)
         ret, frame = cap.read()
         frame = cv2.resize(frame, (224,224))        
-        cv2.imwrite(f'tmp/capstone/{account_id}/{infraction_type}/{location}/{positive_negative}/img{count}.png',frame)
-        count += 1
-        print(count)
-        time.sleep(capture_delay)
-    return f'tmp/capstone/{account_id}/{infraction_type}/{location}/{positive_negative}' 
+        cv2.imwrite(f'{MODEL_BASE_DIR}/{parsed_details.details_string}/{positive_negative}/img{iter_start}.png',frame)
+        iter_start += 1
+        print(iter_start)
+        time.sleep(train_request.between_captures)
+    return f'{MODEL_BASE_DIR}/{parsed_details.details_string}/{positive_negative}' 
     
+
+def send_capturing_failure(parsed_details):
+    requests.post(
+        url = f'{parsed_details.serial_number}/infraction_types/{parsed_details.infraction_type_id}/needs_retraining',
+        json={
+            "device_serial_number" : parsed_details.device_serial_number,
+            "infraction_type_id" : parsed_details.infraction_type_id,
+            "currently_tracking" : True,
+        },
+        headers={
+            "Content-Type": "application/json",
+            "x-create-infraction-event-key": TOKEN
+        }
+    )
