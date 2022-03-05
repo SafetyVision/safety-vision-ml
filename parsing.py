@@ -1,5 +1,4 @@
 import attr
-from functools import cached_property
 from typing import Optional
 
 from constants import CREATE_ENDPOINT
