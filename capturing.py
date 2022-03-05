@@ -23,6 +23,7 @@ def collection_management(parsed_details, train_request, begin_positive, begin_n
     time.sleep(train_request.stream_delay)
     print('Starting positive images collection')
     pos_dir = begin_collection(url, parsed_details, train_request, "positive", 1)
+    send_done_commit(parsed_details)
 
     start = time.time()
     while(begin_negative[parsed_details.details_string] == False):
@@ -35,6 +36,7 @@ def collection_management(parsed_details, train_request, begin_positive, begin_n
     time.sleep(train_request.stream_delay)
     print('Starting negative images collection')
     neg_dir = begin_collection(url, parsed_details, train_request, "negative", 1)
+    send_done_not_commit(parsed_details)
 
     start = time.time()
     while(begin_positive[parsed_details.details_string] == False):
@@ -47,6 +49,7 @@ def collection_management(parsed_details, train_request, begin_positive, begin_n
     time.sleep(train_request.stream_delay)
     print('Starting positive images collection')
     pos_dir = begin_collection(url, parsed_details, train_request, "positive", 2)
+    send_done_commit(parsed_details)
 
     start = time.time()
     while(begin_negative[parsed_details.details_string] == False):
@@ -59,6 +62,7 @@ def collection_management(parsed_details, train_request, begin_positive, begin_n
     time.sleep(train_request.stream_delay)
     print('Starting negative images collection')
     neg_dir = begin_collection(url, parsed_details, train_request, "negative", 2)
+    send_done_not_commit(parsed_details)
     print('Image collection complete')
     
 
@@ -82,6 +86,34 @@ def begin_collection(url, parsed_details, train_request, positive_negative, seri
 def send_capturing_failure(parsed_details):
     requests.post(
         url = f'{parsed_details.serial_number}/infraction_types/{parsed_details.infraction_type_id}/needs_retraining',
+        json={
+            "device_serial_number" : parsed_details.device_serial_number,
+            "infraction_type_id" : parsed_details.infraction_type_id,
+            "currently_tracking" : True,
+        },
+        headers={
+            "Content-Type": "application/json",
+            "x-create-infraction-event-key": TOKEN
+        }
+    )
+
+def send_done_commit(parsed_details):
+    requests.post(
+        url = f'{parsed_details.serial_number}/infraction_types/{parsed_details.infraction_type_id}/done_commit',
+        json={
+            "device_serial_number" : parsed_details.device_serial_number,
+            "infraction_type_id" : parsed_details.infraction_type_id,
+            "currently_tracking" : True,
+        },
+        headers={
+            "Content-Type": "application/json",
+            "x-create-infraction-event-key": TOKEN
+        }
+    )
+
+def send_done_not_commit(parsed_details):
+    requests.post(
+        url = f'{parsed_details.serial_number}/infraction_types/{parsed_details.infraction_type_id}/done_not_commit',
         json={
             "device_serial_number" : parsed_details.device_serial_number,
             "infraction_type_id" : parsed_details.infraction_type_id,
