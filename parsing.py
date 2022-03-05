@@ -16,9 +16,9 @@ class RequestDetails:
 
 @attr.define
 class TrainRequest:
-    num_captures: Optional[int] = 20
-    between_captures: Optional[float] = 0.2
-    stream_delay: Optional[float] = 15.0
+    num_captures: Optional[int]
+    between_captures: Optional[float]
+    stream_delay: Optional[float]
       
 
 
@@ -32,7 +32,7 @@ def parse_request_details(req):
 
 def parse_train_details(req):
     return TrainRequest(
-        num_captures = req.get("num_captures", None),
-        between_captures = req.get("between_captures", None),
-        stream_delay = req.get("stream_delay", None),
+        num_captures = req.get("num_captures", 200),
+        between_captures = req.get("between_captures", 0.2),
+        stream_delay = req.get("stream_delay", 15.0),
     )
