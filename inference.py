@@ -9,6 +9,7 @@ import requests
 import datetime
 import connection
 import os
+from model import InfractionDetectionModel
 
 def run_inference(parsed_details, train_request, url, model_path, threads_dict):
     M = torch.nn.Sigmoid()
@@ -16,7 +17,7 @@ def run_inference(parsed_details, train_request, url, model_path, threads_dict):
         #Loading model and making binary classifier
         model_init =  torchvision.models.mobilenet_v2(pretrained=False)
         model_init.classifier[1] = torch.nn.Linear(in_features=model_init.classifier[1].in_features,out_features=1)
-        model = model.InfractionDetectionModel.load_from_checkpoint(model_path,model=model_init)
+        model = InfractionDetectionModel.load_from_checkpoint(model_path,model=model_init)
 
         send_begin_detection(parsed_details)
         while(threads_dict[parsed_details.details_string] == True):
