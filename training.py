@@ -46,7 +46,7 @@ def run_training(parsed_details, train_request):
 
 def send_training_complete(parsed_details):
     requests.post(
-        url = f'{parsed_details.serial_number}/infraction_types/{parsed_details.infraction_type_id}/training_complete',
+        url = f'{parsed_details.device_serial_number}/infraction_types/{parsed_details.infraction_type_id}/training_complete',
         json={
             "device_serial_number" : parsed_details.device_serial_number,
             "infraction_type_id" : parsed_details.infraction_type_id,
@@ -60,7 +60,7 @@ def send_training_complete(parsed_details):
 
 def send_training_failure(parsed_details):
     requests.post(
-        url = f'{parsed_details.serial_number}/infraction_types/{parsed_details.infraction_type_id}/needs_retraining',
+        url = f'{parsed_details.device_serial_number}/infraction_types/{parsed_details.infraction_type_id}/needs_retraining',
         json={
             "device_serial_number" : parsed_details.device_serial_number,
             "infraction_type_id" : parsed_details.infraction_type_id,
