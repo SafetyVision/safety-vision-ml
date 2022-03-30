@@ -39,6 +39,9 @@ def run_training(parsed_details, train_request):
     print('begin training')
     trainer.fit(agh)
     print(trainer)
+    validate_results = trainer.validate()
+    print(validate_results)
+
 
     trainer.save_checkpoint(os.path.join(model_dir, TRAINED_NAME))
     send_training_complete(parsed_details)
