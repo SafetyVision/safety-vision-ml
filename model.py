@@ -3,7 +3,7 @@ import pytorch_lightning as pl
 import torchvision
 import torch
 
-loss_func = torch.nn.BCEWithLogitsLoss()
+loss_func = torch.nn.BCELoss()
 activation_func  = torch.nn.Sigmoid()
 
 class InfractionDetectionModel(pl.LightningModule):
