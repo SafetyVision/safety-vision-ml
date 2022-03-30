@@ -34,7 +34,8 @@ class InfractionDetectionModel(pl.LightningModule):
         y = torch.unsqueeze(batch['labels'],0).float()
         y_hat = self.forward(x.float())
         loss = loss_func(y_hat,y)
-        return {"loss" : loss}
+        self.log("val_loss", loss)
+        return {"val_loss" : loss}
     
     def train_dataloader(self):
         return torch.utils.data.DataLoader(self.train_dataset,batch_size=self.batch_size,collate_fn=self.col_fn)
