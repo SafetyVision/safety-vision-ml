@@ -38,7 +38,7 @@ class InfractionDetectionModel(pl.LightningModule):
         loss = loss_func(y_hat,y)
         y = torch.round(y).tolist()[0]
         y_hat = torch.round(y_hat).tolist()[0]
-        precision, recall, fscore, support = precision_recall_fscore_support(y, y_hat)
+        precision, recall, fscore, support = precision_recall_fscore_support(y, y_hat, average='micro')
         self.log("val_loss", loss)
         self.log("precision", precision)
         self.log("recall", recall)
