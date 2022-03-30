@@ -4,6 +4,7 @@ import torchvision
 import torch
 
 loss_func = torch.nn.BCEWithLogitsLoss()
+activation_func  = torch.nn.Sigmoid()
 
 class InfractionDetectionModel(pl.LightningModule):
     def __init__(self, train_dataset=None, val_dataset=None, model=None, col_fn=None, learning_rate=5e-5, num_loading_cpus=1, batch_size=1):
@@ -17,7 +18,7 @@ class InfractionDetectionModel(pl.LightningModule):
         self.batch_size = batch_size
     
     def forward(self,x):
-        f = self.model.forward(x)
+        f = activation_func(self.model.forward(x))
         return f
     
     def training_step(self, batch, batch_idx):
