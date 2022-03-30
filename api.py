@@ -28,13 +28,15 @@ def train_new():
     begin_negative[parsed_details.details_string] = False
     #Training data collection
     try:
-        capturing.collection_management(parsed_details, train_request, begin_positive, begin_negative)
+        model_path = None
+        while model_path is None:
+            capturing.collection_management(parsed_details, train_request, begin_positive, begin_negative)
 
-        #Model training
-        model_path = training.run_training(
-            parsed_details,
-            train_request
-        )
+            #Model training
+            model_path = training.run_training(
+                parsed_details,
+                train_request
+            )
 
         #Infraction detection
         url = connection.initialize_new_stream(parsed_details.kvs_arn)
