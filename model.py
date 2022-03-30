@@ -24,7 +24,7 @@ class InfractionDetectionModel(pl.LightningModule):
         x = batch['data']
         y = torch.unsqueeze(batch['labels'],0).float()
         y_hat = self.forward(x.float())
-        print('y_hat ', y_hat)
+        print('y_hat ', y_hat, " y", y)
         loss = loss_func(y_hat,y)
         return loss
         
