@@ -3,8 +3,6 @@ import os
 
 from constants import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, REGION
 
-
-
 def initialize_new_stream(kvs_arn):
     kvs_client = boto3.client(
         'kinesisvideo',

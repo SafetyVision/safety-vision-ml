@@ -3,8 +3,6 @@ import pytorch_lightning as pl
 import torchvision
 import torch
 
-F = torch.nn.BCEWithLogitsLoss()
-M = torch.nn.Sigmoid()
 
 class InfractionDetectionModel(pl.LightningModule):
     def __init__(self, train_dataset=None, val_dataset=None, model=None, col_fn=None, learning_rate=5e-5, num_loading_cpus=1, batch_size=1):
@@ -26,15 +24,15 @@ class InfractionDetectionModel(pl.LightningModule):
         y = torch.unsqueeze(batch['labels'],0).float()
         y_hat = self.forward(x.float())
         print('y_hat ', y_hat)
-        output = F(y_hat,y)
-        return output
+        loss = torch.nn.BCEWithLogitsLoss(y_hat,y)
+        return loss
         
     def validation_step(self, batch, batch_idx):
         x = batch['data']
         y = torch.unsqueeze(batch['labels'],0).float()
         y_hat = self.forward(x.float())
-        output = F(y_hat,y)
-        return output
+        loss = torch.nn.BCEWithLogitsLoss(y_hat,y)
+        return {"loss" : loss}
     
     def train_dataloader(self):
         return torch.utils.data.DataLoader(self.train_dataset,batch_size=self.batch_size,collate_fn=self.col_fn)
