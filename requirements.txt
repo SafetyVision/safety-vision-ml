@@ -13,3 +13,4 @@ requests==2.27.1
 torch==1.7.1
 torchvision==0.8.2
 tqdm==4.62.3
+scikit-learn

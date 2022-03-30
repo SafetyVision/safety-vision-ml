@@ -2,6 +2,7 @@
 import pytorch_lightning as pl
 import torchvision
 import torch
+from sklearn.metrics import precision_recall_fscore_support
 
 loss_func = torch.nn.BCELoss()
 activation_func  = torch.nn.Sigmoid()
@@ -25,6 +26,7 @@ class InfractionDetectionModel(pl.LightningModule):
         x = batch['data']
         y = torch.unsqueeze(batch['labels'],0).float()
         y_hat = self.forward(x.float())
+
         print('y_hat ', y_hat, " y", y)
         loss = loss_func(y_hat,y)
         return loss
@@ -34,8 +36,11 @@ class InfractionDetectionModel(pl.LightningModule):
         y = torch.unsqueeze(batch['labels'],0).float()
         y_hat = self.forward(x.float())
         loss = loss_func(y_hat,y)
+        precision, recall, fscore, support = precision_recall_fscore_support(torch.round(torch.squeeze(y)).tolist(),torch.round(torch.squeeze(y_hat)).tolist())
         self.log("val_loss", loss)
-        return {"val_loss" : loss}
+        self.log("precision", precision)
+        self.log("recall", recall)
+        return {"val_loss" : loss, "precision" : precision, "recall" : recall}
     
     def train_dataloader(self):
         return torch.utils.data.DataLoader(self.train_dataset,batch_size=self.batch_size,collate_fn=self.col_fn)
