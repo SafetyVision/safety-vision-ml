@@ -18,6 +18,7 @@ begin_negative = dict()
 
 @app.route('/train_new', methods=['POST'])
 def train_new():
+    print('start?')
     #Input parsing
     req = flask.request.get_json()
     parsed_details = parse_request_details(req)
@@ -53,6 +54,33 @@ def train_new():
         return {"message": "Accepted"}, 202
     except TimeoutError: 
         return {"message": "Accepted"}, 202
+
+@app.route('/train_restart', methods=['POST'])
+def train_restart():
+    req = flask.request.get_json()
+    parsed_details = parse_request_details(req)
+    train_request = parse_train_details(req)
+
+    #Model training
+    model_path = training.run_training(
+        parsed_details,
+        train_request
+    )
+
+    #Infraction detection
+    url = connection.initialize_new_stream(parsed_details.kvs_arn)
+    threads_dict[parsed_details.details_string] = True
+    thr = threading.Thread(
+        target = inference.run_inference,
+        args = (
+            parsed_details,
+            train_request,
+            url,
+            model_path,
+            threads_dict
+            )
+        )
+    thr.start()
     
 
 @app.route('/start_positive', methods=['POST'])
