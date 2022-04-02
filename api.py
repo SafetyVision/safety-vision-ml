@@ -31,7 +31,7 @@ def train_new():
         model_path = None
         continue_number =0
         while model_path is None:
-            capturing.collection_management(parsed_details, train_request, begin_positive, begin_negative)
+            capturing.collection_management(parsed_details, train_request, begin_positive, begin_negative, continue_number)
 
             #Model training
             model_path = training.run_training(
