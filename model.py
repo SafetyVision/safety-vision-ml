@@ -8,8 +8,8 @@ from torchvision import transforms as tr
 pipeline = tr.Compose(
              [tr.RandomRotation(degrees = 270),
               tr.RandomHorizontalFlip(),
-              tr.RandomVerticalFlip(),
-              tr.RandomCrop([224,224], pad_if_needed= True)])
+              tr.RandomVerticalFlip()])
+              #tr.RandomCrop([224,224], pad_if_needed= True)])
 
 
 loss_func = torch.nn.BCELoss()
