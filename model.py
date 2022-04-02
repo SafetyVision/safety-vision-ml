@@ -3,6 +3,16 @@ import pytorch_lightning as pl
 import torchvision
 import torch
 from sklearn.metrics import precision_recall_fscore_support
+from torchvision import transforms as tr
+
+pipeline = tr.Compose(
+             [tr.RandomRotation(degrees = 90),
+              tr.RandomRotation(degrees = 270),
+              tr.RandomGrayscale(),
+              tr.RandomHorizontalFlip(),
+              tr.RandomVerticalFlip(),
+              tr.RandomCrop([224,224], pad_if_needed= True)])
+
 
 loss_func = torch.nn.BCELoss()
 activation_func  = torch.nn.Sigmoid()
@@ -23,7 +33,7 @@ class InfractionDetectionModel(pl.LightningModule):
         return f
     
     def training_step(self, batch, batch_idx):
-        x = batch['data']
+        x = pipeline(batch['data'])
         y = torch.unsqueeze(batch['labels'],0).float()
         y_hat = self.forward(x.float())
 
