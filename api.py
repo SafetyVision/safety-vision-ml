@@ -29,6 +29,7 @@ def train_new():
     #Training data collection
     try:
         model_path = None
+        continue_number =0
         while model_path is None:
             capturing.collection_management(parsed_details, train_request, begin_positive, begin_negative)
 
@@ -37,6 +38,7 @@ def train_new():
                 parsed_details,
                 train_request
             )
+            continue_number += 1
 
         #Infraction detection
         url = connection.initialize_new_stream(parsed_details.kvs_arn)

@@ -70,7 +70,7 @@ def send_training_failure(parsed_details):
         json={
             "device_serial_number" : parsed_details.device_serial_number,
             "infraction_type_id" : parsed_details.infraction_type_id,
-            "currently_tracking" : True,
+            "training_complete" : False,
         },
         headers={
             "Content-Type": "application/json",
