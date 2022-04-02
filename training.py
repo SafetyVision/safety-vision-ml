@@ -32,14 +32,14 @@ def run_training(parsed_details, train_request):
         [len(dataset)-train_request.eval_size, train_request.eval_size],
         )
 
-    model =  torchvision.models.resnet101(pretrained=True)
+    model =  torchvision.models.resnet50(pretrained=True)
     #model2 =  torchvision.models.mobilenet_v2(pretrained=True)
     print(model)
     #print(model2)
     #model.classifier[1] = torch.nn.Linear(in_features=model.classifier[1].in_features,out_features=1)
     model.fc = torch.nn.Linear(in_features=model.fc.in_features,out_features=1)
     agh = InfractionDetectionModel(train_set, val_set, model, col_fn) 
-    trainer = pl.Trainer(max_epochs=2)
+    trainer = pl.Trainer(max_epochs=3)
     print('begin training')
     trainer.fit(agh)
     print(trainer)
