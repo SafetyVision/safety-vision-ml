@@ -35,7 +35,7 @@ def run_training(parsed_details, train_request):
     model =  torchvision.models.mobilenet_v2(pretrained=True)
     model.classifier[1] = torch.nn.Linear(in_features=model.classifier[1].in_features,out_features=1)
     agh = InfractionDetectionModel(train_set, val_set, model, col_fn) 
-    trainer = pl.Trainer(max_epochs=10)
+    trainer = pl.Trainer(max_epochs=10, accumulate_grad_batches=4)
     print('begin training')
     trainer.fit(agh)
     print(trainer)
