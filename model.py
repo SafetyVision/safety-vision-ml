@@ -7,7 +7,6 @@ from torchvision import transforms as tr
 
 pipeline = tr.Compose(
              [tr.RandomRotation(degrees = 270),
-              tr.RandomGrayscale(),
               tr.RandomHorizontalFlip(),
               tr.RandomVerticalFlip(),
               tr.RandomCrop([224,224], pad_if_needed= True)])
