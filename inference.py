@@ -31,7 +31,7 @@ def run_inference(parsed_details, train_request, url, model_path, threads_dict):
                 out = model.forward(ft.float())
                 out = M(out)
                 print(out.numpy().tolist()[0][0])
-                if out.numpy().tolist()[0][0] > 0.60:
+                if out.numpy().tolist()[0][0] > 0.51:
                     dt_string = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - datetime.timedelta(seconds=train_request.stream_delay)
                     dt_string = dt_string.isoformat()                   
                     send_infraction(dt_string, parsed_details)
