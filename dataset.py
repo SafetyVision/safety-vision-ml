@@ -3,9 +3,8 @@ import imageio
 import os
 from torch.utils.data import Dataset
 from torchvision import transforms as tr
-from torchvision.transfroms import Compose
 
-pipeline = Compose(
+pipeline = tr.Compose(
              [tr.RandomRotation(degrees = 90),
               tr.RandomRotation(degrees = 270)])
 
