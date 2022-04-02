@@ -9,7 +9,7 @@ import requests
 from constants import MODEL_BASE_DIR, PLATFORM_ENDPOINT, TOKEN
 
 def collection_management(parsed_details, train_request, begin_positive, begin_negative, continue_number=0):
-    if os.path.isdir(f'{MODEL_BASE_DIR}/{parsed_details.details_string}'):
+    if os.path.isdir(f'{MODEL_BASE_DIR}/{parsed_details.details_string}') and continue_number == 0:
         shutil.rmtree(f'{MODEL_BASE_DIR}/{parsed_details.details_string}')
 
     start = time.time()
