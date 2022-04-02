@@ -32,7 +32,7 @@ class InfractionDetectionModel(pl.LightningModule):
     
     def training_step(self, batch, batch_idx):
         x = pipeline(batch['data'])
-        x = batch['data']
+        #x = batch['data']
         y = torch.unsqueeze(batch['labels'],0).float()
         y_hat = self.forward(x.float())
 
