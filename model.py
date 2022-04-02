@@ -18,7 +18,7 @@ loss_func = torch.nn.BCELoss()
 activation_func  = torch.nn.Sigmoid()
 
 class InfractionDetectionModel(pl.LightningModule):
-    def __init__(self, train_dataset=None, val_dataset=None, model=None, col_fn=None, learning_rate=5e-5, num_loading_cpus=1, batch_size=1):
+    def __init__(self, train_dataset=None, val_dataset=None, model=None, col_fn=None, learning_rate=5e-5, num_loading_cpus=2, batch_size=4):
         super().__init__() 
         self.model =  model
         self.train_dataset = train_dataset
