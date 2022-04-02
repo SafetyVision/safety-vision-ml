@@ -2,6 +2,13 @@ import torch
 import imageio
 import os
 from torch.utils.data import Dataset
+from torchvision import transforms as tr
+from torchvision.transfroms import Compose
+
+pipeline = Compose(
+             [tr.RandomRotation(degrees = 90),
+              tr.RandomRotation(degrees = 270)])
+
 
 class DemonstrationImageDataset(Dataset):
     def __init__(self,img_dir_true,img_dir_false):
@@ -11,5 +18,5 @@ class DemonstrationImageDataset(Dataset):
         return len(self.img_dirs)
 
     def __getitem__(self, idx):   
-        batch = {"data" : torch.transpose(torch.tensor(imageio.imread(self.img_dirs[idx])),0,2).float() , "labels" : torch.tensor(self.labels[idx])}        
+        batch = {"data" :pipeline(torch.transpose(torch.tensor(imageio.imread(self.img_dirs[idx])),0,2).float()) , "labels" : torch.tensor(self.labels[idx])}        
         return [batch]
