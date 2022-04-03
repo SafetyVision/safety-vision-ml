@@ -8,15 +8,16 @@ from torchvision import transforms as tr
 pipeline = tr.Compose(
              [tr.RandomRotation(degrees = 270),
               tr.RandomHorizontalFlip(),
-              tr.RandomVerticalFlip()])
-              #tr.RandomCrop([224,224], pad_if_needed= True)])
+              tr.RandomVerticalFlip(),
+              tr.RandomPerspective(distortion_scale=0.3, p=0.5),
+              tr.RandomCrop([224,224], pad_if_needed= True)])
 
 
 loss_func = torch.nn.BCELoss()
 activation_func  = torch.nn.Sigmoid()
 
 class InfractionDetectionModel(pl.LightningModule):
-    def __init__(self, train_dataset=None, val_dataset=None, model=None, col_fn=None, learning_rate=3e-5, num_loading_cpus=2, batch_size=1):
+    def __init__(self, train_dataset=None, val_dataset=None, model=None, col_fn=None, learning_rate=5e-5, num_loading_cpus=2, batch_size=1):
         super().__init__() 
         self.model =  model
         self.train_dataset = train_dataset
