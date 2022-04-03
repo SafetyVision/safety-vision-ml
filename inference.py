@@ -15,9 +15,11 @@ def run_inference(parsed_details, train_request, url, model_path, threads_dict):
     M = torch.nn.Sigmoid()
     with torch.no_grad():
         #Loading model and making binary classifier
-        model_init =  torchvision.models.resnet50(pretrained=True)
+        model_init =  torchvision.models.resnet50(pretrained=False)
         model_init.fc = torch.nn.Linear(in_features=model_init.fc.in_features,out_features=1)
         model = InfractionDetectionModel.load_from_checkpoint(model_path,model=model_init)
+        model.eval()
+        print(model)
 
         #send_begin_detection(parsed_details)
         while(threads_dict[parsed_details.details_string] == True):

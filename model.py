@@ -43,15 +43,17 @@ class InfractionDetectionModel(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         x = batch['data']
         y = torch.unsqueeze(batch['labels'],0).float()
-        y_hat = self.forward(x.float())
-        loss = loss_func(y_hat,y)
-        y = torch.round(y).tolist()[0]
-        y_hat = torch.round(y_hat).tolist()[0]
-        precision, recall, fscore, support = precision_recall_fscore_support(y, y_hat, average='micro')
-        self.log("val_loss", loss)
-        self.log("precision", precision)
-        self.log("recall", recall)
-        return {"val_loss" : loss, "precision" : precision, "recall" : recall}
+        self.model.eval()
+        with torch.no_grad():
+            y_hat = self.forward(x.float())
+            loss = loss_func(y_hat,y)
+            y = torch.round(y).tolist()[0]
+            y_hat = torch.round(y_hat).tolist()[0]
+            precision, recall, fscore, support = precision_recall_fscore_support(y, y_hat, average='micro')
+            self.log("val_loss", loss)
+            self.log("precision", precision)
+            self.log("recall", recall)
+            return {"val_loss" : loss, "precision" : precision, "recall" : recall}
     
     def train_dataloader(self):
         return torch.utils.data.DataLoader(self.train_dataset,batch_size=self.batch_size,collate_fn=self.col_fn)
