@@ -31,8 +31,8 @@ class InfractionDetectionModel(pl.LightningModule):
         return f
     
     def training_step(self, batch, batch_idx):
-        x = pipeline(batch['data'])
-        #x = batch['data']
+        #x = pipeline(batch['data'])
+        x = batch['data']
         y = torch.unsqueeze(batch['labels'],0).float()
         y_hat = self.forward(x.float())
 
@@ -43,7 +43,6 @@ class InfractionDetectionModel(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         x = batch['data']
         y = torch.unsqueeze(batch['labels'],0).float()
-        self.model.eval()
         with torch.no_grad():
             y_hat = self.forward(x.float())
             loss = loss_func(y_hat,y)
