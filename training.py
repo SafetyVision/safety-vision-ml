@@ -34,7 +34,7 @@ def run_training(parsed_details, train_request):
 
     model =  torchvision.models.resnet50(pretrained=True)
     #model2 =  torchvision.models.mobilenet_v2(pretrained=True)
-    print(model)
+    #print(model)
     #print(model2)
     #model.classifier[1] = torch.nn.Linear(in_features=model.classifier[1].in_features,out_features=1)
     model.fc = torch.nn.Linear(in_features=model.fc.in_features,out_features=1)
