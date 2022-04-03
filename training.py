@@ -19,7 +19,7 @@ def col_fn(batch):
     out['labels'] = torch.stack([x['labels'] for x in batch[0]])
     return out
 
-def run_training(parsed_details, train_request):
+def run_training(parsed_details, train_request, allow_bad = False):
     model_dir= f'{MODEL_BASE_DIR}/{parsed_details.details_string}'
 
     dataset = DemonstrationImageDataset(
@@ -49,7 +49,10 @@ def run_training(parsed_details, train_request):
         print('Training failure, please try again')
         trainer.save_checkpoint(os.path.join(model_dir, TRAINED_NAME))
         send_training_failure(parsed_details)
-        return None
+        if allow_bad:
+            return os.path.join(model_dir,TRAINED_NAME)
+        else:
+            return None
     else:
         trainer.save_checkpoint(os.path.join(model_dir, TRAINED_NAME))
         send_training_complete(parsed_details)

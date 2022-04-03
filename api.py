@@ -68,7 +68,8 @@ def train_restart():
     #Model training
     model_path = training.run_training(
         parsed_details,
-        train_request
+        train_request,
+        allow_bad=True
     )
 
     #Infraction detection
