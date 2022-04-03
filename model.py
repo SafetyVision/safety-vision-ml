@@ -9,8 +9,7 @@ pipeline = tr.Compose(
              [tr.RandomRotation(degrees = 270),
               tr.RandomHorizontalFlip(),
               tr.RandomVerticalFlip(),
-              tr.RandomPerspective(distortion_scale=0.3, p=0.5),
-              tr.RandomCrop([224,224], pad_if_needed= True)])
+              tr.RandomPerspective(distortion_scale=0.3, p=0.5)])
 
 
 loss_func = torch.nn.BCELoss()

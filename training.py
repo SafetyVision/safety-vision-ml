@@ -47,6 +47,7 @@ def run_training(parsed_details, train_request):
     print(validate_results)
     if validate_results[0]['precision'] < 0.9 or validate_results[0]['precision'] < 0.9:
         print('Training failure, please try again')
+        trainer.save_checkpoint(os.path.join(model_dir, TRAINED_NAME))
         send_training_failure(parsed_details)
         return None
     else:
