@@ -7,6 +7,7 @@ import shutil
 import requests
 
 from constants import MODEL_BASE_DIR, PLATFORM_ENDPOINT, TOKEN
+from request import post_request
 
 def collection_management(parsed_details, train_request, begin_positive, begin_negative, continue_number=0, wait_request=True):
     if os.path.isdir(f'{MODEL_BASE_DIR}/{parsed_details.details_string}') and continue_number == 0:
@@ -66,8 +67,6 @@ def collection_management(parsed_details, train_request, begin_positive, begin_n
     print('Image collection complete')
     
 
-
-
 def begin_collection(url, parsed_details, train_request, positive_negative, series_number, continue_number):
     iter_end = series_number * (train_request.num_captures // 4)
     os.makedirs(f'{MODEL_BASE_DIR}/{parsed_details.details_string}/{positive_negative}', exist_ok=True)
@@ -84,43 +83,22 @@ def begin_collection(url, parsed_details, train_request, positive_negative, seri
     
 
 def send_capturing_failure(parsed_details):
-    requests.post(
+    post_request(
+        parsed_details,
+        options = {"currently_tracking" : True},
         url = f'{PLATFORM_ENDPOINT}{parsed_details.device_serial_number}/infraction_types/{parsed_details.infraction_type_id}/needs_retraining',
-        json={
-            "device_serial_number" : parsed_details.device_serial_number,
-            "infraction_type_id" : parsed_details.infraction_type_id,
-            "currently_tracking" : True,
-        },
-        headers={
-            "Content-Type": "application/json",
-            "x-create-infraction-event-key": TOKEN
-        }
     )
 
 def send_done_commit(parsed_details):
-    requests.post(
+    post_request(
+        parsed_details,
+        options = {"currently_tracking" : True},
         url = f'{PLATFORM_ENDPOINT}{parsed_details.device_serial_number}/infraction_types/{parsed_details.infraction_type_id}/done_commit',
-        json={
-            "device_serial_number" : parsed_details.device_serial_number,
-            "infraction_type_id" : parsed_details.infraction_type_id,
-            "currently_tracking" : True,
-        },
-        headers={
-            "Content-Type": "application/json",
-            "x-create-infraction-event-key": TOKEN
-        }
     )
 
 def send_done_not_commit(parsed_details):
-    requests.post(
+    post_request(
+        parsed_details,
+        options = {"currently_tracking" : True},
         url = f'{PLATFORM_ENDPOINT}{parsed_details.device_serial_number}/infraction_types/{parsed_details.infraction_type_id}/done_not_commit',
-        json={
-            "device_serial_number" : parsed_details.device_serial_number,
-            "infraction_type_id" : parsed_details.infraction_type_id,
-            "currently_tracking" : True,
-        },
-        headers={
-            "Content-Type": "application/json",
-            "x-create-infraction-event-key": TOKEN
-        }
     )

@@ -11,6 +11,7 @@ from constants import MODEL_BASE_DIR, PLATFORM_ENDPOINT, TOKEN, TRAINED_NAME
 
 from dataset import DemonstrationImageDataset
 from model import InfractionDetectionModel
+from request import post_request
 
 
 def col_fn(batch):
@@ -53,29 +54,15 @@ def run_training(parsed_details, train_request, allow_bad = False):
         return os.path.join(model_dir,TRAINED_NAME)
 
 def send_training_complete(parsed_details):
-    requests.post(
+    post_request(
+        parsed_details,
+        options = {"training_complete" : True},
         url = f'{PLATFORM_ENDPOINT}{parsed_details.device_serial_number}/infraction_types/{parsed_details.infraction_type_id}/training_complete',
-        json={
-            "device_serial_number" : parsed_details.device_serial_number,
-            "infraction_type_id" : parsed_details.infraction_type_id,
-            "training_complete" : True,
-        },
-        headers={
-            "Content-Type": "application/json",
-            "x-create-infraction-event-key": TOKEN
-        }
     )
 
 def send_training_failure(parsed_details):
-    requests.post(
+    post_request(
+        parsed_details,
+        options = {"training_complete" : False},
         url = f'{PLATFORM_ENDPOINT}{parsed_details.device_serial_number}/infraction_types/{parsed_details.infraction_type_id}/needs_retraining',
-        json={
-            "device_serial_number" : parsed_details.device_serial_number,
-            "infraction_type_id" : parsed_details.infraction_type_id,
-            "training_complete" : False,
-        },
-        headers={
-            "Content-Type": "application/json",
-            "x-create-infraction-event-key": TOKEN
-        }
     )

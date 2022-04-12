@@ -9,27 +9,36 @@ from constants import MODEL_BASE_DIR, TRAINED_NAME
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = False
+
+ # Keeps track of which models are currently detecting
 global threads_dict
-global begin_postive
-global begin_negative
 threads_dict = dict()
-begin_positive = dict()
+
+# Keep track of where models are in capturing process
+global begin_postive 
+global begin_negative
+begin_positive = dict() 
 begin_negative = dict()
 
+
+# Called to initiate process of training a new model
 @app.route('/train_new', methods=['POST'])
 def train_new():
-    print('start?')
+    print('Starting model training process')
+
     #Input parsing
     req = flask.request.get_json()
     parsed_details = parse_request_details(req)
     train_request = parse_train_details(req)
 
+    # Have not performed positive or negative capturing
     begin_positive[parsed_details.details_string] = False
     begin_negative[parsed_details.details_string] = False
+
     #Training data collection
     try:
-        model_path = None
-        continue_number =0
+        model_path = None # Location of the saved model, only populated upon training success
+        continue_number = 0 # The number of times the user has had to retrain
         while model_path is None:
             capturing.collection_management(parsed_details, train_request, begin_positive, begin_negative, continue_number)
 

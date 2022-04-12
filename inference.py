@@ -10,6 +10,7 @@ import datetime
 import connection
 import os
 from model import InfractionDetectionModel
+from request import post_request
 
 def run_inference(parsed_details, train_request, url, model_path, threads_dict):
     M = torch.nn.Sigmoid()
@@ -20,7 +21,6 @@ def run_inference(parsed_details, train_request, url, model_path, threads_dict):
         model = InfractionDetectionModel.load_from_checkpoint(model_path,model=model_init)
         model.eval()
 
-        #send_begin_detection(parsed_details)
         while(threads_dict[parsed_details.details_string] == True):
             try:
                 cap = cv2.VideoCapture(url)
@@ -45,43 +45,12 @@ def run_inference(parsed_details, train_request, url, model_path, threads_dict):
 
 
 def send_infraction(dt_string, parsed_details):
-    requests.post(
-        url = parsed_details.output_url,
-        json={
-            "infraction_date_time":dt_string,
-            "device" : parsed_details.device_serial_number,
+    post_request(
+        parsed_details,
+        options = {
             "infraction_type" : int(parsed_details.infraction_type_id),
+            "device" : parsed_details.device_serial_number,
+            "infraction_date_time" : dt_string
         },
-        headers={
-            "Content-Type": "application/json",
-            "x-create-infraction-event-key": TOKEN
-        }
-    )
-
-def send_begin_detection(parsed_details):
-    requests.post(
         url = parsed_details.output_url,
-        json={
-            "device_serial_number" : parsed_details.device_serial_number,
-            "infraction_type_id" : parsed_details.infraction_type_id,
-            "currently_tracking" : True,
-        },
-        headers={
-            "Content-Type": "application/json",
-            "x-create-infraction-event-key": TOKEN
-        }
-    )
-
-def send_end_detection(parsed_details):
-    requests.post(
-        url = parsed_details.output_url,
-        json={
-            "device_serial_number" : parsed_details.device_serial_number,
-            "infraction_type_id" : parsed_details.infraction_type_id,
-            "currently_tracking" : False,
-        },
-        headers={
-            "Content-Type": "application/json",
-            "x-create-infraction-event-key": TOKEN
-        }
     )
