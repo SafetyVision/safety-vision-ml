@@ -130,3 +130,5 @@ dmypy.json
 .vscode
 tmp/
 lightning_logs/
+notebooks/tmp
+notebooks/lightning_logs

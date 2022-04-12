@@ -6,10 +6,13 @@ from sklearn.metrics import precision_recall_fscore_support
 from torchvision import transforms as tr
 
 pipeline = tr.Compose(
-             [tr.RandomRotation(degrees = 270),
+             [tr.Grayscale(num_output_channels=3),
+              tr.RandomRotation(degrees = 270),
               tr.RandomHorizontalFlip(),
               tr.RandomVerticalFlip(),
               tr.RandomPerspective(distortion_scale=0.3, p=0.5)])
+pipeline2 = tr.Compose(
+    [tr.Grayscale(num_output_channels=3)])
 
 
 loss_func = torch.nn.BCELoss()
@@ -31,7 +34,7 @@ class InfractionDetectionModel(pl.LightningModule):
         return f
     
     def training_step(self, batch, batch_idx):
-        #x = pipeline(batch['data'])
+        x = pipeline(batch['data'])
         x = batch['data']
         y = torch.unsqueeze(batch['labels'],0).float()
         y_hat = self.forward(x.float())
@@ -41,7 +44,7 @@ class InfractionDetectionModel(pl.LightningModule):
         return loss
         
     def validation_step(self, batch, batch_idx):
-        x = batch['data']
+        x = pipeline2(batch['data'])
         y = torch.unsqueeze(batch['labels'],0).float()
         with torch.no_grad():
             y_hat = self.forward(x.float())

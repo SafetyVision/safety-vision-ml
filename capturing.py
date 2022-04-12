@@ -8,14 +8,14 @@ import requests
 
 from constants import MODEL_BASE_DIR, PLATFORM_ENDPOINT, TOKEN
 
-def collection_management(parsed_details, train_request, begin_positive, begin_negative, continue_number=0):
+def collection_management(parsed_details, train_request, begin_positive, begin_negative, continue_number=0, wait_request=True):
     if os.path.isdir(f'{MODEL_BASE_DIR}/{parsed_details.details_string}') and continue_number == 0:
         shutil.rmtree(f'{MODEL_BASE_DIR}/{parsed_details.details_string}')
 
     start = time.time()
-    while(begin_positive[parsed_details.details_string] == False):
+    while(begin_positive[parsed_details.details_string] == False and wait_request):
         time.sleep(0.5)
-        if(time.time()-start) > 120:
+        if(time.time()-start) > 300:
             raise TimeoutError("Waited too long to begin collection")                
 
     url = connection.initialize_new_stream(parsed_details.kvs_arn)
@@ -26,9 +26,9 @@ def collection_management(parsed_details, train_request, begin_positive, begin_n
     send_done_commit(parsed_details)
 
     start = time.time()
-    while(begin_negative[parsed_details.details_string] == False):
+    while(begin_negative[parsed_details.details_string] == False and wait_request):
         time.sleep(0.5)    
-        if(time.time()-start) > 120:
+        if(time.time()-start) > 300:
             raise TimeoutError("Waited too long to begin collection")   
 
     url = connection.initialize_new_stream(parsed_details.kvs_arn)
@@ -39,9 +39,9 @@ def collection_management(parsed_details, train_request, begin_positive, begin_n
     send_done_not_commit(parsed_details)
 
     start = time.time()
-    while(begin_positive[parsed_details.details_string] == False):
+    while(begin_positive[parsed_details.details_string] == False and wait_request):
         time.sleep(0.5)
-        if(time.time()-start) > 120:
+        if(time.time()-start) > 300:
             raise TimeoutError("Waited too long to begin collection")                
 
     url = connection.initialize_new_stream(parsed_details.kvs_arn)
@@ -52,9 +52,9 @@ def collection_management(parsed_details, train_request, begin_positive, begin_n
     send_done_commit(parsed_details)
 
     start = time.time()
-    while(begin_negative[parsed_details.details_string] == False):
+    while(begin_negative[parsed_details.details_string] == False and wait_request):
         time.sleep(0.5)    
-        if(time.time()-start) > 120:
+        if(time.time()-start) > 300:
             raise TimeoutError("Waited too long to begin collection")   
 
     url = connection.initialize_new_stream(parsed_details.kvs_arn)
