@@ -16,7 +16,7 @@ def run_inference(parsed_details, train_request, url, model_path, threads_dict):
     with torch.no_grad():
         #Loading model and making binary classifier
         model_init = torchvision.models.mobilenet_v2(pretrained=True)
-        model_init.classifier[1] = torch.nn.Linear(in_features=model.classifier[1].in_features,out_features=1)
+        model_init.classifier[1] = torch.nn.Linear(in_features=model_init.classifier[1].in_features,out_features=1)
         model = InfractionDetectionModel.load_from_checkpoint(model_path,model=model_init)
         model.eval()
 
